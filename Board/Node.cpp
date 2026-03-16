@@ -11,16 +11,35 @@ Node::~Node() {
     //Nth
 }
 
-std::optional<Node> Node::from(/*Move move*/) const {
-    //do move ...
+std::optional<Node> Node::from(const Move move) const {
+    std::array<uint64_t, PieceTypeCount> newPieces = pieces; // will modif original?
+    Node::NodeInfo newNodeInfo = nodeInfo; // will modif original?
 
-    if(Node::isKingInCheck(pieces, nodeInfo.isWhiteToMove))
+    if(!assertValidPieceToMove(newPieces, move.init))
         return std::nullopt;
-    
-    // return std::make_optional(pieces); // wtf is that error? lol
-    return std::nullopt;
+
+
+
+    if(Node::isKingInCheck(newPieces, newNodeInfo.isWhiteToMove))
+        return std::nullopt;
+
+    return std::make_optional<Node>({
+        newPieces,
+        newNodeInfo
+    });
 }
 
-bool Node::isKingInCheck(const std::array<uint64_t, PieceTypeCount>& pieces, const bool isWhiteToMove) {
+bool assertValidPieceToMove(const std::array<uint64_t, PieceTypeCount>& pieces, Tile init) {
+    for(uint64_t pieceType : pieces) {
+        if(pieceType & 0b1 << init.x * 8 + init.y != 0) { //validate x/y and operator precedence
+            // set pieceType of pos to idk...
+            return true;
+        }
+    }
+
     return false;
+};
+
+bool Node::isKingInCheck(const std::array<uint64_t, PieceTypeCount>& pieces, const bool isWhiteToMove) {
+   return false;
 }

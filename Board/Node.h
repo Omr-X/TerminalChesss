@@ -1,6 +1,8 @@
 #include "Pieces/PieceType.h"
+#include "Move/Move.h"
 #include <array>
 #include <optional>
+
 
 //Node represents a game state. it is meant to be const; to create a subsequent game state, create a new node
 class Node {
@@ -35,9 +37,9 @@ public:
     Node(const std::array<uint64_t, PieceTypeCount>& pieces, const NodeInfo& nodeInfo);
     ~Node();
 
-    std::optional<Node> from(/*Move move*/) const;
+    std::optional<Node> from(const Move move) const;
 
-    static bool isKingInCheck(const std::array<uint64_t, PieceTypeCount>& pieces, const bool isKingWhite);
+    static bool isKingInCheck(const std::array<uint64_t, PieceTypeCount>& pieces, const bool isWhiteToMove);
 
     uint64_t operator[](const int pieceType);
     uint64_t operator[](const PieceType pieceType);
