@@ -15,10 +15,10 @@ std::optional<Node> Node::from(const Move move) const {
     std::array<uint64_t, PieceTypeCount> newPieces = pieces; // will modif original?
     Node::NodeInfo newNodeInfo = nodeInfo; // will modif original?
 
-    if(!assertValidPieceToMove(newPieces, move.init))
+    if(!nodeUtils::assertValidPieceToMove(newPieces, move.init))
         return std::nullopt;
 
-
+    
 
     if(Node::isKingInCheck(newPieces, newNodeInfo.isWhiteToMove))
         return std::nullopt;
@@ -29,17 +29,19 @@ std::optional<Node> Node::from(const Move move) const {
     });
 }
 
-bool assertValidPieceToMove(const std::array<uint64_t, PieceTypeCount>& pieces, Tile init) {
-    for(uint64_t pieceType : pieces) {
-        if(pieceType & 0b1 << init.x * 8 + init.y != 0) { //validate x/y and operator precedence
-            // set pieceType of pos to idk...
-            return true;
-        }
-    }
-
-    return false;
-};
-
 bool Node::isKingInCheck(const std::array<uint64_t, PieceTypeCount>& pieces, const bool isWhiteToMove) {
    return false;
 }
+
+namespace nodeUtils {
+    bool assertValidPieceToMove(const std::array<uint64_t, PieceTypeCount>& pieces, Tile init) {
+        for(uint64_t pieceType : pieces) {
+            if(pieceType & 0b1 << init.x + init.y * 8 != 0) { //validate x/y and operator precedence
+                pieceType &= ~(0b1 << init.x + init.y * 8);
+                return true;
+            }
+        }
+
+        return false;
+    };
+};
