@@ -6,10 +6,5 @@ public:
     Tile(const int x, const int y) :
         x{x},
         y{y}
-    {
-        //Nth
-    }
-    ~Tile() {
-        //Nth
-    };
+    {}
 };

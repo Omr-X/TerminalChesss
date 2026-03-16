@@ -1,7 +1,8 @@
-#include "Pieces/PieceType.h"
-#include "Move/Move.h"
+#include "../Pieces/PieceType.h"
+#include "../Move/Move.h"
 #include <array>
 #include <optional>
+#include <cstdint>
 
 
 //Node represents a game state. it is meant to be const; to create a subsequent game state, create a new node
@@ -9,8 +10,7 @@ class Node {
 private:
     const std::array<uint64_t, PieceTypeCount> pieces;
 
-    static struct NodeInfo {
-        bool isWhiteToMove;
+    static struct NodeInfo { bool isWhiteToMove;
 
         static struct LastMove {
             PieceType pieceType;

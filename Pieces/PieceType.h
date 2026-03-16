@@ -1,4 +1,6 @@
-constexpr size_t PieceTypeCount = 11;
+#include <cstddef>
+
+constexpr std::size_t PieceTypeCount = 11;
 
 enum class PieceType {
     WHITE_PAWN = 0,
