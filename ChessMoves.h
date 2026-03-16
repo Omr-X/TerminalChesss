@@ -18,6 +18,23 @@ public:
     int deltaRow() { return start.first - end.first; }
     int deltaCol() { return start.second - end.second; }
 
+    bool Pawn(bool isBlack) {
+        int dir = isBlack ? 1 : -1;
+        int startRow = isBlack ? 1 : 6;
+
+        if (deltaCol() == 0 && deltaRow() == -dir && board[end.first][end.second] == 0) return true;
+        if (std::abs(deltaCol()) == 1 && deltaRow() == -dir && board[end.first][end.second] != 0) return true;
+        if (deltaCol() == 0 && deltaRow() == -dir * 2 && start.first == startRow
+            && board[end.first][end.second] == 0 && board[start.first + dir][start.second] == 0) return true;
+
+        return false;
+    }
+
+    bool Knight() {
+        return (std::abs(deltaRow()) == 2 && std::abs(deltaCol()) == 1) ||
+               (std::abs(deltaRow()) == 1 && std::abs(deltaCol()) == 2);
+    }
+
     bool Rook() {
         if (deltaRow() != 0 && deltaCol() != 0) return false;
 
@@ -52,6 +69,10 @@ public:
 
     bool Queen() {
         return Rook() || Bishop();
+    }
+
+    bool King() {
+        return std::abs(deltaRow()) <= 1 && std::abs(deltaCol()) <= 1;
     }
 };
 

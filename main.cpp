@@ -87,6 +87,7 @@ bool isBlack(Pieces piece) {
 int main() {
     _setmode(_fileno(stdout), _O_U16TEXT);
     bool blackPlaying = false;
+    bool endgame = false;
     std::pair<int,int> start;
     std::pair<int, int> end;
     ChessMoves<Pieces> chessMoves(start, end, board);
@@ -97,13 +98,13 @@ int main() {
         {B_Bishop, [&]() { return chessMoves.Bishop(); }},
         {W_Bishop, [&]() { return chessMoves.Bishop(); }},
         {B_Queen,  [&]() { return chessMoves.Queen();  }},
-        {W_Queen,  [&]() { return chessMoves.Queen();  }}/* ,
+        {W_Queen,  [&]() { return chessMoves.Queen();  }},
        {B_Knight, [&]() { return chessMoves.Knight(); }},
         {W_Knight, [&]() { return chessMoves.Knight(); }},
         {B_King,   [&]() { return chessMoves.King();   }},
         {W_King,   [&]() { return chessMoves.King();   }},
-        {B_Pawn,   [&]() { return chessMoves.Pawn();   }},
-        {W_Pawn,   [&]() { return chessMoves.Pawn();   }},*/
+        {B_Pawn,   [&]() { return chessMoves.Pawn(true);}},
+        {W_Pawn,   [&]() { return chessMoves.Pawn(false);}},
     };
 
     do {
@@ -154,14 +155,16 @@ int main() {
         Pieces moving = checkBoard(start.first, start.second);
         auto it = moveValidators.find(static_cast<int>(moving));
         if (it != moveValidators.end() && it->second()) {
+            if (checkBoard(end.first, end.second) == B_King || checkBoard(end.first, end.second) == W_King) endgame = true;
             movePiece(init, final);
             blackPlaying = !blackPlaying;
         }
         else {
-            movePiece(init, final);
             std::wcout << "Your move is illegal. Please try again. \n";
         }
-    } while (true);
+    } while (!endgame);
 
+    if (blackPlaying) std::wcout << L"White wins!\n";
+    else std::wcout << L"Black wins!\n";
     return 0;
 }
