@@ -5,33 +5,18 @@
 #include <functional>
 #include <unordered_map>
 #include "ChessMoves.h"
+#include "Pieces/PieceType.h"
 
 
-enum Pieces {
-    None = 0,
-    B_Pawn = L'\u2659',
-    B_Rook = L'\u2656',
-    B_Knight = L'\u2658',
-    B_Bishop = L'\u2657',
-    B_Queen = L'\u2655',
-    B_King = L'\u2654',
-    W_Pawn = B_Pawn + 6,
-    W_Rook = B_Rook + 6,
-    W_Knight = B_Knight + 6,
-    W_Bishop = B_Bishop + 6,
-    W_Queen = B_Queen + 6,
-    W_King = B_King + 6
-};
-
-Pieces board[8][8] = {
-    {B_Rook, B_Knight, B_Bishop, B_Queen, B_King, B_Bishop, B_Knight, B_Rook},
-    {B_Pawn, B_Pawn, B_Pawn, B_Pawn, B_Pawn, B_Pawn, B_Pawn, B_Pawn},
-    {None, None, None, None, None, None, None, None},
-    {None, None, None, None, None, None, None, None},
-    {None, None, None, None, None, None, None, None},
-    {None, None, None, None, None, None, None, None},
-    {W_Pawn, W_Pawn, W_Pawn, W_Pawn, W_Pawn, W_Pawn, W_Pawn, W_Pawn},
-    {W_Rook, W_Knight, W_Bishop, W_Queen, W_King, W_Bishop, W_Knight, W_Rook}
+PieceType board[8][8] = {
+    {PieceType::BLACK_ROOK, PieceType::BLACK_KNIGHT, PieceType::BLACK_BISHOP, PieceType::BLACK_QUEEN, PieceType::BLACK_KING, PieceType::BLACK_BISHOP, PieceType::BLACK_KNIGHT, PieceType::BLACK_ROOK},
+    {PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN},
+    {PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE},
+    {PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE},
+    {PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE},
+    {PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE},
+    {PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN},
+    {PieceType::WHITE_ROOK, PieceType::WHITE_KNIGHT, PieceType::WHITE_BISHOP, PieceType::WHITE_QUEEN, PieceType::WHITE_KING, PieceType::WHITE_BISHOP, PieceType::WHITE_KNIGHT, PieceType::WHITE_ROOK}
 };
 
 static auto sep = L'\u2502';
@@ -42,8 +27,8 @@ void drawBoard() {
     for(const auto &i : board){
         std::wcout << sep;
         for(const auto y : i) {
-            if (y != None)
-                std::wcout << static_cast<wchar_t>(y);
+            if (y != PieceType::NONE)
+                std::wcout << static_cast<wchar_t>(getUnicode(y));
             else
                 std::wcout << empty;
             std::wcout << sep;
@@ -62,8 +47,8 @@ std::pair<int, int> translateToIndex(const std::string& coor) {
     return std::pair<int, int>(std::abs(coor.at(1) - 56), col - 65);
 }
 
-Pieces checkBoard(const int row, const int col) {
-    if (row < 0 || row > 7 || col < 0 || col > 7) return None;
+PieceType checkBoard(const int row, const int col) {
+    if (row < 0 || row > 7 || col < 0 || col > 7) return PieceType::NONE;
     return board[row][col];
 }
 
@@ -72,7 +57,7 @@ void movePiece(const std::string& actual, const std::string& move) {
     std::pair<int, int> to = translateToIndex(move);
 
     board[to.first][to.second] = board[from.first][from.second];
-    board[from.first][from.second] = None;
+    board[from.first][from.second] = PieceType::NONE;
 }
 
 bool isValidCoordinate(const std::string& coor) {
@@ -80,8 +65,8 @@ bool isValidCoordinate(const std::string& coor) {
     return index.first != -1 && index.second != -1;
 }
 
-bool isBlack(Pieces piece) {
-    return piece != None && piece < 9818;
+bool isBlack(PieceType piece) {
+    return piece != PieceType::NONE && piece > PieceType::WHITE_KING;
 }
 
 int main() {
@@ -90,21 +75,21 @@ int main() {
     bool endgame = false;
     std::pair<int,int> start;
     std::pair<int, int> end;
-    ChessMoves<Pieces> chessMoves(start, end, board);
+    ChessMoves<PieceType> chessMoves(start, end, board);
 
     std::unordered_map<int, std::function<bool()>> moveValidators = {
-        {B_Rook,   [&]() { return chessMoves.Rook();   }},
-        {W_Rook,   [&]() { return chessMoves.Rook();   }},
-        {B_Bishop, [&]() { return chessMoves.Bishop(); }},
-        {W_Bishop, [&]() { return chessMoves.Bishop(); }},
-        {B_Queen,  [&]() { return chessMoves.Queen();  }},
-        {W_Queen,  [&]() { return chessMoves.Queen();  }},
-       {B_Knight, [&]() { return chessMoves.Knight(); }},
-        {W_Knight, [&]() { return chessMoves.Knight(); }},
-        {B_King,   [&]() { return chessMoves.King();   }},
-        {W_King,   [&]() { return chessMoves.King();   }},
-        {B_Pawn,   [&]() { return chessMoves.Pawn(true);}},
-        {W_Pawn,   [&]() { return chessMoves.Pawn(false);}},
+        {static_cast<int>(PieceType::BLACK_ROOK),   [&]() { return chessMoves.Rook();        }},
+        {static_cast<int>(PieceType::WHITE_ROOK),   [&]() { return chessMoves.Rook();        }},
+        {static_cast<int>(PieceType::BLACK_BISHOP), [&]() { return chessMoves.Bishop();      }},
+        {static_cast<int>(PieceType::WHITE_BISHOP), [&]() { return chessMoves.Bishop();      }},
+        {static_cast<int>(PieceType::BLACK_QUEEN),  [&]() { return chessMoves.Queen();       }},
+        {static_cast<int>(PieceType::WHITE_QUEEN),  [&]() { return chessMoves.Queen();       }},
+        {static_cast<int>(PieceType::BLACK_KNIGHT), [&]() { return chessMoves.Knight();      }},
+        {static_cast<int>(PieceType::WHITE_KNIGHT), [&]() { return chessMoves.Knight();      }},
+        {static_cast<int>(PieceType::BLACK_KING),   [&]() { return chessMoves.King();        }},
+        {static_cast<int>(PieceType::WHITE_KING),   [&]() { return chessMoves.King();        }},
+        {static_cast<int>(PieceType::BLACK_PAWN),   [&]() { return chessMoves.Pawn(true);}},
+        {static_cast<int>(PieceType::WHITE_PAWN),   [&]() { return chessMoves.Pawn(false);}},
     };
 
     do {
@@ -121,7 +106,7 @@ int main() {
 
             if (isValidCoordinate(init)) {
                 start = translateToIndex(init);
-                if (checkBoard(start.first, start.second) == None) {
+                if (checkBoard(start.first, start.second) == PieceType::NONE) {
                     std::wcout << L"There is no piece at that coordinate. Please try again.\n";
                     continue;
                 }
@@ -139,7 +124,7 @@ int main() {
             std::cin >> final;
             if (isValidCoordinate(final)) {
                 end = translateToIndex(final);
-                if (checkBoard(end.first, end.second) != None && isBlack(checkBoard(end.first, end.second)) == blackPlaying) {
+                if (checkBoard(end.first, end.second) != PieceType::NONE && isBlack(checkBoard(end.first, end.second)) == blackPlaying) {
                     std::wcout << L"You cannot move to a square occupied by your own piece. Please try again. \n";
                     continue;
                 }
@@ -152,10 +137,10 @@ int main() {
             std::wcout << L"Invalid coordinate. Please enter a valid square (ex: A5).\n";
         }
 
-        Pieces moving = checkBoard(start.first, start.second);
+        PieceType moving = checkBoard(start.first, start.second);
         auto it = moveValidators.find(static_cast<int>(moving));
         if (it != moveValidators.end() && it->second()) {
-            if (checkBoard(end.first, end.second) == B_King || checkBoard(end.first, end.second) == W_King) endgame = true;
+            if (checkBoard(end.first, end.second) == PieceType::BLACK_KING || checkBoard(end.first, end.second) == PieceType::WHITE_KING) endgame = true;
             movePiece(init, final);
             blackPlaying = !blackPlaying;
         }
