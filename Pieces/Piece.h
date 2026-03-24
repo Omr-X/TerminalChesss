@@ -24,28 +24,23 @@ public:
 
     virtual const std::unordered_set<Move, MoveHash> getMoves() const = 0;
 
-    static const Piece getPiece(const PieceType pieceType, const bool isWhite, const std::array<uint64_t, PieceTypeCount>& pieces, const Node::NodeInfo& nodeInfo) {
-        switch (pieceType) {
-
-            default: return {isWhite, pieces};
-        }
-    }
-
     constexpr bool isWithinBounds(int val) const {
-        return isWhitinUpperBounds(val) && isWithinLowerBounds(val);
+        return val >= 0 && val <= 7;
     }
 
     constexpr bool canMove(const Tile& dest) const {
         return isWithinBounds(dest.x)
         && isWithinBounds(dest.y)
         && (isWhite ?
-            (board.getWhitePieces() & (1 << dest.x + dest.y * 8)) == 0
-            : (board.getBlackPieces() & (1 << dest.x + dest.y * 8)) == 0);
+            (board.getWhitePieces() & (1ULL << (dest.x + dest.y * 8))) == 0
+            : (board.getBlackPieces() & (1ULL << (dest.x + dest.y * 8))) == 0);
     }
 
     constexpr bool hasKilled(const Tile& dest) const {
-        return isWhite ?
-            board.getBlackPieces() & (1 << dest.x + dest.y * 8) == 0
-            : board.getWhitePieces() & (1 << dest.x + dest.y * 8) == 0;
+        return isWithinBounds(dest.x)
+        && isWithinBounds(dest.y)
+        && (isWhite ?
+            (board.getBlackPieces() & (1ULL << (dest.x + dest.y * 8))) != 0
+            : (board.getWhitePieces() & (1ULL << (dest.x + dest.y * 8))) != 0);
     }
 };

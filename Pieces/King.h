@@ -6,37 +6,36 @@ private:
 
 public:
     King(const bool isWhiteToMove, const Board& board, const Node::NodeInfo& nodeInfo) :
-        nodeInfo{nodeInfo},
-        Piece{isWhiteToMove, board}
+        Piece{isWhiteToMove, board},
+        nodeInfo{nodeInfo}
     {};
 
     const std::unordered_set<Move, MoveHash> getMoves() const override {
         uint64_t kings = board.pieces[static_cast<int>(isWhite ? PieceType::WHITE_KING : PieceType::BLACK_KING)];
         std::unordered_set<Move, MoveHash> moves;
 
-        for (int pos; pos < 64; pos++) {
-            if ((kings & (1 << pos)) != 0)
+        for (int pos = 0; pos < 64; pos++) {
+            if ((kings & (1ULL << pos)) == 0)
                 continue;
 
             Tile kingPos{pos};
 
-            if (canMove({kingPos.x + 1, kingPos.y + 1}))
-                moves.emplace({kingPos, Tile{kingPos.x + 1, kingPos.y + 1}});
-            if (canMove({kingPos.x + 1, kingPos.y}))
-                moves.emplace({kingPos, Tile{kingPos.x + 1, kingPos.y}});
-            if (canMove({kingPos.x + 1,kingPos.y - 1}))
-                moves.emplace({kingPos, Tile{kingPos.x + 1, kingPos.y - 1}});
-            if (canMove({kingPos.x, kingPos.y + 1}))
-                moves.emplace({kingPos, Tile{kingPos.x, kingPos.y + 1}});
-            if (canMove({kingPos.x, kingPos.y - 1}))
-                moves.emplace({kingPos, Tile{kingPos.x, kingPos.y - 1}});
-            if (canMove({kingPos.x - 1, kingPos.y + 1}))
-                moves.emplace({kingPos, Tile{kingPos.x - 1, kingPos.y + 1}});
-            if (canMove({kingPos.x - 1, kingPos.y}))
-                moves.emplace({kingPos, Tile{kingPos.x - 1, kingPos.y}});
-            if (canMove({kingPos.x - 1, kingPos.y - 1}))
-                moves.emplace({kingPos, Tile{kingPos.x - 1, kingPos.y - 1}});
-
+            if (canMove({kingPos.x + 1, kingPos.y + 1}) || hasKilled({kingPos.x + 1, kingPos.y + 1}))
+                moves.emplace(kingPos, Tile{kingPos.x + 1, kingPos.y + 1});
+            if (canMove({kingPos.x + 1, kingPos.y}) || hasKilled({kingPos.x + 1, kingPos.y}))
+                moves.emplace(kingPos, Tile{kingPos.x + 1, kingPos.y});
+            if (canMove({kingPos.x + 1, kingPos.y - 1}) || hasKilled({kingPos.x + 1, kingPos.y - 1}))
+                moves.emplace(kingPos, Tile{kingPos.x + 1, kingPos.y - 1});
+            if (canMove({kingPos.x, kingPos.y + 1}) || hasKilled({kingPos.x, kingPos.y + 1}))
+                moves.emplace(kingPos, Tile{kingPos.x, kingPos.y + 1});
+            if (canMove({kingPos.x, kingPos.y - 1}) || hasKilled({kingPos.x, kingPos.y - 1}))
+                moves.emplace(kingPos, Tile{kingPos.x, kingPos.y - 1});
+            if (canMove({kingPos.x - 1, kingPos.y + 1}) || hasKilled({kingPos.x - 1, kingPos.y + 1}))
+                moves.emplace(kingPos, Tile{kingPos.x - 1, kingPos.y + 1});
+            if (canMove({kingPos.x - 1, kingPos.y}) || hasKilled({kingPos.x - 1, kingPos.y}))
+                moves.emplace(kingPos, Tile{kingPos.x - 1, kingPos.y});
+            if (canMove({kingPos.x - 1, kingPos.y - 1}) || hasKilled({kingPos.x - 1, kingPos.y - 1}))
+                moves.emplace(kingPos, Tile{kingPos.x - 1, kingPos.y - 1});
 
             //TODO -> castling logic
             // if (nodeInfo.castlingRights.whiteKingSide && isWhite) {
@@ -44,8 +43,6 @@ public:
             // }
             // if (nodeInfo.castlingRights.whiteQueenSide && isWhite) {
             // }
-
-            }
         }
 
         return moves;

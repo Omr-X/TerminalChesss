@@ -12,6 +12,7 @@ class Node {
 private:
     const Board board;
 
+public:
     struct NodeInfo {
         bool isWhiteToMove;
 
@@ -35,9 +36,10 @@ private:
         // int fiftyMoveRule; implement later... anyways need to find a way to implement three fold repetition too
     };
 
+private:
     const NodeInfo nodeInfo;
 
-public:    
+public:
     Node(const Board& board, const NodeInfo& nodeInfo);
     ~Node() = default;
 

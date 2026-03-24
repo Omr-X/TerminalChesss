@@ -10,7 +10,10 @@ public:
         dest{dest.x, dest.y}
     {};
 
-
+    bool operator==(const Move& other) const {
+        return init.x == other.init.x && init.y == other.init.y
+            && dest.x == other.dest.x && dest.y == other.dest.y;
+    }
 };
 
 struct MoveHash {

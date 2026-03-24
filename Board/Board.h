@@ -13,7 +13,7 @@ public:
     Board(const std::array<uint64_t, PieceTypeCount>& pieces) :
         pieces{pieces}
     {};
-    ~Board();
+    ~Board() = default;
 
     const uint64_t getWhitePieces() const {
         return pieces[static_cast<int>(PieceType::WHITE_BISHOP)]
