@@ -4,22 +4,26 @@
 #include <optional>
 #include <cstdint>
 
+#include "Board.h"
 
-//Node represents a game state. it is meant to be const; to create a subsequent game state, create a new node
+
+//Node represents a game state. it is non-mutable; to create a subsequent game state, create a new node
 class Node {
 private:
-    const std::array<uint64_t, PieceTypeCount> pieces;
+    const Board board;
 
-    static struct NodeInfo { bool isWhiteToMove;
+    struct NodeInfo {
+        bool isWhiteToMove;
 
-        static struct LastMove {
+        struct LastMove {
             PieceType pieceType;
+            Move move;
             /*Move move (init and dest)*/
         };
 
         LastMove LastMove;
 
-        static struct CastlingRights {
+        struct CastlingRights {
             bool whiteKingSide;
             bool whiteQueenSide;
             bool blackKingSide;
@@ -34,12 +38,12 @@ private:
     const NodeInfo nodeInfo;
 
 public:    
-    Node(const std::array<uint64_t, PieceTypeCount>& pieces, const NodeInfo& nodeInfo);
-    ~Node();
+    Node(const Board& board, const NodeInfo& nodeInfo);
+    ~Node() = default;
 
     std::optional<Node> from(const Move move) const;
 
-    static bool isKingInCheck(const std::array<uint64_t, PieceTypeCount>& pieces, const bool isWhiteToMove);
+    static bool isKingInCheck(const Board& board, const bool isWhiteToMove);
 
     uint64_t operator[](const int pieceType);
     uint64_t operator[](const PieceType pieceType);

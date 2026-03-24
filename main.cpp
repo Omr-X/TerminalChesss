@@ -11,10 +11,10 @@
 PieceType board[8][8] = {
     {PieceType::BLACK_ROOK, PieceType::BLACK_KNIGHT, PieceType::BLACK_BISHOP, PieceType::BLACK_QUEEN, PieceType::BLACK_KING, PieceType::BLACK_BISHOP, PieceType::BLACK_KNIGHT, PieceType::BLACK_ROOK},
     {PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN, PieceType::BLACK_PAWN},
-    {PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE},
-    {PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE},
-    {PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE},
-    {PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE, PieceType::NONE},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
     {PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN, PieceType::WHITE_PAWN},
     {PieceType::WHITE_ROOK, PieceType::WHITE_KNIGHT, PieceType::WHITE_BISHOP, PieceType::WHITE_QUEEN, PieceType::WHITE_KING, PieceType::WHITE_BISHOP, PieceType::WHITE_KNIGHT, PieceType::WHITE_ROOK}
 };
@@ -27,7 +27,7 @@ void drawBoard() {
     for(const auto &i : board){
         std::wcout << sep;
         for(const auto y : i) {
-            if (y != PieceType::NONE)
+            if (y != 0)
                 std::wcout << static_cast<wchar_t>(getUnicode(y));
             else
                 std::wcout << empty;
@@ -48,7 +48,7 @@ std::pair<int, int> translateToIndex(const std::string& coor) {
 }
 
 PieceType checkBoard(const int row, const int col) {
-    if (row < 0 || row > 7 || col < 0 || col > 7) return PieceType::NONE;
+    if (row < 0 || row > 7 || col < 0 || col > 7) return 0;
     return board[row][col];
 }
 
@@ -57,7 +57,7 @@ void movePiece(const std::string& actual, const std::string& move) {
     std::pair<int, int> to = translateToIndex(move);
 
     board[to.first][to.second] = board[from.first][from.second];
-    board[from.first][from.second] = PieceType::NONE;
+    board[from.first][from.second] = 0;
 }
 
 bool isValidCoordinate(const std::string& coor) {
@@ -66,7 +66,7 @@ bool isValidCoordinate(const std::string& coor) {
 }
 
 bool isBlack(PieceType piece) {
-    return piece != PieceType::NONE && piece > PieceType::WHITE_KING;
+    return piece != 0 && piece > PieceType::WHITE_KING;
 }
 
 int main() {
@@ -106,7 +106,7 @@ int main() {
 
             if (isValidCoordinate(init)) {
                 start = translateToIndex(init);
-                if (checkBoard(start.first, start.second) == PieceType::NONE) {
+                if (checkBoard(start.first, start.second) == 0) {
                     std::wcout << L"There is no piece at that coordinate. Please try again.\n";
                     continue;
                 }
@@ -124,7 +124,7 @@ int main() {
             std::cin >> final;
             if (isValidCoordinate(final)) {
                 end = translateToIndex(final);
-                if (checkBoard(end.first, end.second) != PieceType::NONE && isBlack(checkBoard(end.first, end.second)) == blackPlaying) {
+                if (checkBoard(end.first, end.second) != 0 && isBlack(checkBoard(end.first, end.second)) == blackPlaying) {
                     std::wcout << L"You cannot move to a square occupied by your own piece. Please try again. \n";
                     continue;
                 }

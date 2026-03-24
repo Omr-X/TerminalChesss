@@ -9,4 +9,11 @@ add_executable(chess main.cpp
         Move/Tile.h
         Pieces/PieceType.h
         Move/Move.h
+        Pieces/King.h
+        Pieces/Knight.h
+        Pieces/Piece.h
+        Board/Board.h
+        Pieces/Rook.h
+        Pieces/Bishop.h
+        Pieces/Queen.h
 )

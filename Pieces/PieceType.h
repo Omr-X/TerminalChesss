@@ -1,23 +1,27 @@
-constexpr size_t PieceTypeCount = 11;
+#pragma once
+#include <cstdint>
+#include <stdexcept>
+constexpr size_t PieceTypeCount = 12;
+
+
 
 enum class PieceType {
-    NONE = 0,
-    WHITE_PAWN = 1,
-    WHITE_ROOK = 2,
-    WHITE_KNIGHT = 3,
-    WHITE_BISHOP = 4,
-    WHITE_QUEEN = 5,
-    WHITE_KING = 6,
+    WHITE_PAWN = 0,
+    WHITE_ROOK = 1,
+    WHITE_KNIGHT = 2,
+    WHITE_BISHOP = 3,
+    WHITE_QUEEN = 4,
+    WHITE_KING = 5,
     
-    BLACK_PAWN = 7,
-    BLACK_ROOK = 8,
-    BLACK_KNIGHT = 9,
-    BLACK_BISHOP = 10,
-    BLACK_QUEEN = 11,
-    BLACK_KING = 12
+    BLACK_PAWN = 6,
+    BLACK_ROOK = 7,
+    BLACK_KNIGHT = 8,
+    BLACK_BISHOP = 9,
+    BLACK_QUEEN = 10,
+    BLACK_KING = 11
 };
 
-int getUnicode(PieceType piece) {
+constexpr wchar_t getUnicode(const PieceType piece) {
     switch (piece) {
         case PieceType::WHITE_PAWN:   return 0x2659;
         case PieceType::WHITE_ROOK:   return 0x2656;
@@ -31,6 +35,7 @@ int getUnicode(PieceType piece) {
         case PieceType::BLACK_BISHOP: return 0x265D;
         case PieceType::BLACK_QUEEN:  return 0x265B;
         case PieceType::BLACK_KING:   return 0x265A;
-        default:                      return 0;
+
+        default:                        throw std::runtime_error("skill issue @PieceType::getUnicode");
     }
 }

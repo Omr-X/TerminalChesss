@@ -1,48 +1,59 @@
 #include "Node.h"
 
-namespace nodeUtils {
-    bool assertValidPieceToMove(const std::array<uint64_t, PieceTypeCount>& pieces, Tile init) {
-        for(uint64_t pieceType : pieces) {
-            if((pieceType & 0b1 << init.x + init.y * 8) != 0) {
-                pieceType &= ~(pieceType & 0b1 << init.x + init.y * 8);
-                return true;
-            }
-        }
+#include <iostream>
 
-        return false;
-    };
+namespace nodeUtils {
+    bool isPieceAtPos(const int pos, const uint64_t piece) {
+        return (piece & (1 << pos)) != 0;
+    }
+
+    bool isPieceAtPos(const Tile pos, const uint64_t piece) {
+        return (piece & (1 << pos.getPos())) != 0;
+    }
 };
 
 
-Node::Node(const std::array<uint64_t, PieceTypeCount>& pieces, const Node::NodeInfo& nodeInfo) :
-    pieces{pieces},
+Node::Node(const Board& board, const Node::NodeInfo& nodeInfo) :
+    board{board},
     nodeInfo{nodeInfo}
 {
-    //Nth
 }
 
-Node::~Node() {
-    //Nth
-}
 std::optional<Node> Node::from(const Move move) const {
-    std::array<uint64_t, PieceTypeCount> newPieces = pieces; // will modif original?
-    Node::NodeInfo newNodeInfo = nodeInfo; // will modif original?
+    Board newBoard = board;
+    Node::NodeInfo newNodeInfo = nodeInfo;
 
-    if(!nodeUtils::assertValidPieceToMove(newPieces, move.init))
-        return std::nullopt;
+    //TODO, reverify logic
 
-    
-
-    if(Node::isKingInCheck(newPieces, newNodeInfo.isWhiteToMove))
+    if(Node::isKingInCheck(newBoard, newNodeInfo.isWhiteToMove))
         return std::nullopt;
 
     return std::make_optional<Node>({
-        newPieces,
+        newBoard,
         newNodeInfo
     });
 }
 
-bool Node::isKingInCheck(const std::array<uint64_t, PieceTypeCount>& pieces, const bool isWhiteToMove) {
-   return false;
-}
+bool Node::isKingInCheck(const Board& board, const bool isWhiteToMove) {
+    #ifdef __debug
+        if (board[static_cast<int>(isWhiteToMove ? PieceType::BLACK_KING : PieceType::WHITE_KING)])
+            throw std::runtime_error("skill issue");
+    #endif
 
+    uint64_t king = board.pieces[static_cast<int>(isWhiteToMove ? PieceType::BLACK_KING : PieceType::WHITE_KING)];
+
+    for (int pos = 0; pos < 64; pos++) {
+        if (nodeUtils::isPieceAtPos(pos, king)) {
+            Tile kingPos{pos};
+
+            uint64_t knights = board.pieces[static_cast<int>(isWhiteToMove ? PieceType::WHITE_KNIGHT : PieceType::BLACK_KNIGHT)];
+            //verify that no knights can capture the king
+
+            //TODO...
+
+            return false;
+        }
+    }
+
+    throw std::runtime_error("skill issue @Node::isKingInCheck n2");
+}
