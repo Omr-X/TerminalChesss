@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include "ChessMoves.h"
 
+const int width = 20;
+const int height = 20;
 
 enum Pieces {
     None = 0,
@@ -34,10 +36,41 @@ Pieces board[8][8] = {
     {W_Rook, W_Knight, W_Bishop, W_Queen, W_King, W_Bishop, W_Knight, W_Rook}
 };
 
-static auto sep = L'\u2502';
-static auto empty = L'\uFF0D';
+auto sep = L'\u2502';
+auto empty = L'\uFF0D';
+
 
 void drawBoard() {
+    std::wcout << "\033[H\033[J"; // Clear the console screen
+    for (int i = 0; i < 17; ++i) {
+
+        if(i % 2 == 0){
+            int e = 0;
+            std::wcout << L"   ";
+            while(e < 40){
+                std::wcout << L"\u2500";
+                e++;
+            }
+            std::wcout << L"\n";
+            continue;
+        }
+
+        std::wcout << 8 - (i / 2) << L" ";
+        int row = i / 2;
+
+        for (int j = 0; j < 8; ++j) {
+            std::wcout << L" " << sep << L" ";
+            if (board[row][j] != None)
+                std::wcout << static_cast<wchar_t>(board[row][j]) << L" ";
+            else
+                std::wcout << empty;
+        }
+
+        std::wcout << sep << L"\n";
+    }
+
+    std::wcout << L"     A    B    C    D    E    F    G    H\n";
+/**
     std::wcout << '\n';
     for(const auto &i : board){
         std::wcout << sep;
@@ -51,6 +84,7 @@ void drawBoard() {
         std::wcout << L"\n";
     }
     std::wcout << std::endl;
+    */
 }
 
 std::pair<int, int> translateToIndex(const std::string& coor) {
@@ -83,7 +117,6 @@ bool isValidCoordinate(const std::string& coor) {
 bool isBlack(Pieces piece) {
     return piece != None && piece < 9818;
 }
-
 int main() {
     _setmode(_fileno(stdout), _O_U16TEXT);
     bool blackPlaying = false;
