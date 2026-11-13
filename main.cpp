@@ -42,11 +42,12 @@ auto empty = L'\uFF0D';
 
 void drawBoard() {
     std::wcout << "\033[H\033[J"; // Clear the console screen
+
     for (int i = 0; i < 17; ++i) {
 
-        if(i % 2 == 0){
-            int e = 0;
-            std::wcout << L"   ";
+       if(i % 2 == 0){
+           int e = 0;
+           std::wcout << L"   ";
             while(e < 40){
                 std::wcout << L"\u2500";
                 e++;
@@ -96,6 +97,13 @@ std::pair<int, int> translateToIndex(const std::string& coor) {
     return std::pair<int, int>(std::abs(coor.at(1) - 56), col - 65);
 }
 
+/**
+ * Returns the piece at the given row and column on the board.
+ * If the coordinates are out of bounds, it returns None.
+ * 
+ * @param row The row index (0-7) of the board.
+ * @param col The column index (0-7) of the board.
+ */
 Pieces checkBoard(const int row, const int col) {
     if (row < 0 || row > 7 || col < 0 || col > 7) return None;
     return board[row][col];
@@ -170,30 +178,34 @@ int main() {
         while (true) {
             std::wcout << L"Where do you want to move it : ";
             std::cin >> final;
-            if (isValidCoordinate(final)) {
-                end = translateToIndex(final);
-                if (checkBoard(end.first, end.second) != None && isBlack(checkBoard(end.first, end.second)) == blackPlaying) {
-                    std::wcout << L"You cannot move to a square occupied by your own piece. Please try again. \n";
-                    continue;
-                }
-                if (start == end) {
-                    std::wcout << L"You haven't move your piece. Please try again. \n";
-                    continue;
-                }
-                break;
+            if (!isValidCoordinate(final)) {
+              std::wcout << L"Invalid coordinate. Please enter a valid square (ex: A5).\n"; 
+              continue;
             }
-            std::wcout << L"Invalid coordinate. Please enter a valid square (ex: A5).\n";
-        }
+            
+            end = translateToIndex(final);
+            if (checkBoard(end.first, end.second) != None && isBlack(checkBoard(end.first, end.second)) == blackPlaying) {
+                std::wcout << L"You cannot move to a square occupied by your own piece. Please try again. \n";
+                continue;
+            }
+            if (start == end) {
+                std::wcout << L"You haven't move your piece. Please try again. \n";
+                continue;
+            }
 
-        Pieces moving = checkBoard(start.first, start.second);
-        auto it = moveValidators.find(static_cast<int>(moving));
-        if (it != moveValidators.end() && it->second()) {
-            if (checkBoard(end.first, end.second) == B_King || checkBoard(end.first, end.second) == W_King) endgame = true;
-            movePiece(init, final);
-            blackPlaying = !blackPlaying;
-        }
-        else {
-            std::wcout << "Your move is illegal. Please try again. \n";
+            Pieces moving = checkBoard(start.first, start.second);
+            auto it = moveValidators.find(static_cast<int>(moving));
+            if (it != moveValidators.end() && it->second()) {
+                if (checkBoard(end.first, end.second) == B_King || checkBoard(end.first, end.second) == W_King) endgame = true;
+                movePiece(init, final);
+                blackPlaying = !blackPlaying;
+            }
+            else {
+                std::wcout << "Your move is illegal. Please try again. \n";
+                continue;
+            }
+
+            break;
         }
     } while (!endgame);
 
