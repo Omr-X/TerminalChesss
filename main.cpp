@@ -4,10 +4,15 @@
 #include <cmath>
 #include <functional>
 #include <unordered_map>
+#include <windows.h>
 #include "ChessMoves.h"
 
 const int width = 20;
 const int height = 20;
+
+const wchar_t* ORANGE = L"\033[92m";
+const wchar_t* WHITE   = L"\033[97m";
+const wchar_t* RESET = L"\033[0m";
 
 enum Pieces {
     None = 0,
@@ -36,41 +41,46 @@ Pieces board[8][8] = {
     {W_Rook, W_Knight, W_Bishop, W_Queen, W_King, W_Bishop, W_Knight, W_Rook}
 };
 
-auto sep = L'\u2502';
-auto empty = L'\uFF0D';
+constexpr wchar_t sep = L'\u2502';
+constexpr wchar_t empty = L'\uFF0D';
 
-
-void drawBoard() {
+void drawBoardHighlight(std::pair<int, int> highlight){
     std::wcout << "\033[H\033[J"; // Clear the console screen
 
-    for (int i = 0; i < 17; ++i) {
+    for (int i = 0; i < 17; i++) {
 
-       if(i % 2 == 0){
-           int e = 0;
-           std::wcout << L"   ";
-            while(e < 40){
-                std::wcout << L"\u2500";
-                e++;
+           if(i % 2 == 1) std::wcout << 8 - (i / 2) << L" ";
+            int row = i / 2;
+
+        for (int j = 0; j < 8; j++) {
+
+           if (i % 2 == 0) {
+                if (j == 0) {
+                    bool lineHl = (i == 2 * highlight.first || i == 2 * highlight.first + 2);
+                    std::wcout << L"   ";
+                    for (int x = 0; x <= 40; x++) {
+                        bool hl = lineHl && x >= 5 * highlight.second && x <= 5 * (highlight.second + 1);
+                        std::wcout << (hl ? ORANGE : WHITE) << L"\u2500";
+                    }
+                    std::wcout << RESET;
+                }
+                continue;                                
             }
-            std::wcout << L"\n";
-            continue;
-        }
 
-        std::wcout << 8 - (i / 2) << L" ";
-        int row = i / 2;
-
-        for (int j = 0; j < 8; ++j) {
-            std::wcout << L" " << sep << L" ";
+            bool hl = (row == highlight.first) && (j >= highlight.second && j <= highlight.second + 1);
+            std::wcout << L" "  << (hl ? ORANGE : WHITE) << sep << RESET << L" ";
             if (board[row][j] != None)
                 std::wcout << static_cast<wchar_t>(board[row][j]) << L" ";
             else
                 std::wcout << empty;
         }
 
-        std::wcout << sep << L"\n";
+        if(i % 2 == 1) std::wcout << L" " << (highlight.first == row ? ORANGE : WHITE) << sep << RESET;
+        std::wcout << L"\n";
     }
 
     std::wcout << L"     A    B    C    D    E    F    G    H\n";
+
 /**
     std::wcout << '\n';
     for(const auto &i : board){
@@ -88,6 +98,18 @@ void drawBoard() {
     */
 }
 
+void drawBoard() {
+  drawBoardHighlight(std::pair<int, int>(-1, -1)); 
+}
+
+/**
+ * Translates a chess coordinate (e.g., "A5") to a pair of indices (row, column) for the board array.
+ * the row start from 0 to 7 where 0 is the top row (8 in chess notation) and 7 is the bottom row (1 in chess notation).
+ * the column start from 0 to 7 where 0 is the leftmost column (A in chess notation) and 7 is the rightmost column (H in chess notation).
+ * If the coordinate is invalid, it returns (-1, -1).
+ * 
+ * @param coor The chess coordinate as a string (e.g., "A5").
+ */
 std::pair<int, int> translateToIndex(const std::string& coor) {
     if (coor.length() != 2) return std::pair<int, int>(-1, -1);
     char col = std::toupper(coor.at(0));
@@ -132,6 +154,11 @@ int main() {
     std::pair<int,int> start;
     std::pair<int, int> end;
     ChessMoves<Pieces> chessMoves(start, end, board);
+
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode = 0;
+    GetConsoleMode(h, &mode);
+    SetConsoleMode(h, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
     std::unordered_map<int, std::function<bool()>> moveValidators = {
         {B_Rook,   [&]() { return chessMoves.Rook();   }},
